@@ -10,194 +10,142 @@
             background-color: #fdf6e3;
             color: #5a5a2d;
             margin: 0;
-            padding: 20px;
+            padding: 2%; /* Adjusted to percentage */
             background-image: url('https://tr.rbxcdn.com/7762f33ee079e5f17cc456e40def9b1c/768/432/Image/Webp');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
+
         h1, h2 {
             color: #856404;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
+
         .section {
-            margin-bottom: 20px;
-            padding: 20px;
+            margin-bottom: 2%; /* Adjusted to percentage */
+            padding: 2%;
             border: 2px solid #ffeeba;
             border-radius: 10px;
             background-color: rgba(255, 255, 255, 0.9);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
+
         footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 2%;
             font-size: 0.9em;
             color: #4a4a2d;
         }
-        .hidden {
-            display: none;
-        }
+
         button {
             background-color: #856404;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            margin: 5px;
+            padding: 1% 2%;
+            margin: 1%;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #6c4f02;
         }
+
         ul {
             list-style-type: none;
             padding: 0;
         }
+
         li {
             background-color: #fff3cd;
-            margin: 5px 0;
-            padding: 10px;
+            margin: 1% 0;
+            padding: 1%;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .update-log-button {
+
+        .update-log-button, .calculator-button {
             position: fixed;
-            top: 95.5%; /* Keep this if you want the Update Log button centered vertically */
-            right: 10px; /* Adjust this for desired horizontal position */
-            z-index: 1000; /* Ensure it's above other content */
+            bottom: 2%;
+            right: 2%;
+            z-index: 1000;
         }
 
         .calculator-button {
-            position: fixed;
-            top: 95.5%; /* Keep this if you want the Update Log button centered vertically */
-            right: 135px; /* Adjust this for desired horizontal position */
-            z-index: 1000; /* Ensure it's above other content */
+            right: 12%; /* Slightly offset from update-log-button */
         }
 
-        /* Additional styles for #updateLog */
         #updateLog {
             position: fixed;
             top: 50%;
-            right: 10px;
-            transform: translateY(-50%); /* Center vertically */
+            left: 50%;
+            transform: translate(-50%, -50%);
             border: 2px solid #ffeeba;
             border-radius: 10px;
             background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px; /* Increased padding */
+            padding: 2%;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: none; /* Initially hidden */
-            z-index: 1000; /* Ensure it's above other content */
-            width: 400px; /* Wider width */
-            height: auto; /* Allow height to adjust */
-        }
-
-        #updateLog h2 {
-            font-size: 1.5em; /* Increased heading size */
-        }
-
-        #updateLog p {
-            font-size: 1.1em; /* Increased paragraph size */
-        }
-
-        #updateLog ul li {
-            padding: 15px; /* Increased padding for list items */
-            font-size: 1.1em; /* Increased list item size */
+            display: none;
+            z-index: 1000;
+            width: 40%;
+            height: auto;
         }
     </style>
     <script>
+        let isDragging = false;
+        let offsetX, offsetY;
+
         function toggleSection(sectionId) {
-            var section = document.getElementById(sectionId);
+            const section = document.getElementById(sectionId);
             section.classList.toggle('hidden');
         }
 
         function toggleUpdateLog() {
-            var updateLog = document.getElementById('updateLog');
+            const updateLog = document.getElementById('updateLog');
             updateLog.style.display = updateLog.style.display === 'none' || updateLog.style.display === '' ? 'block' : 'none';
         }
 
-        let isDragging = false;
-        let offsetX, offsetY;
-
         function makeDraggable(element) {
-            element.addEventListener('mousedown', function(e) {
+            element.addEventListener('mousedown', function (e) {
                 isDragging = true;
                 offsetX = e.clientX - element.getBoundingClientRect().left;
                 offsetY = e.clientY - element.getBoundingClientRect().top;
             });
 
-            document.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', function (e) {
                 if (isDragging) {
-                    let newX = e.clientX - offsetX;
-                    let newY = e.clientY - offsetY;
+                    const windowWidth = window.innerWidth;
+                    const windowHeight = window.innerHeight;
 
-                    // Boundary constraints
-                    const maxX = window.innerWidth - element.offsetWidth - 10; // 10px padding
-                    const maxY = window.innerHeight - element.offsetHeight - 10; // 10px padding
-                    newX = Math.max(10, Math.min(newX, maxX));
-                    newY = Math.max(10, Math.min(newY, maxY));
+                    let newX = ((e.clientX - offsetX) / windowWidth) * 100; // Convert to percentage
+                    let newY = ((e.clientY - offsetY) / windowHeight) * 100; // Convert to percentage
 
-                    // Update element's position
-                    element.style.left = newX + 'px';
-                    element.style.top = newY + 'px';
+                    const elementWidth = (element.offsetWidth / windowWidth) * 100;
+                    const elementHeight = (element.offsetHeight / windowHeight) * 100;
+
+                    // Boundary constraints in percentages
+                    newX = Math.max(0, Math.min(newX, 100 - elementWidth));
+                    newY = Math.max(0, Math.min(newY, 100 - elementHeight));
+
+                    element.style.left = newX + '%';
+                    element.style.top = newY + '%';
                 }
             });
 
-            document.addEventListener('mouseup', function() {
+            document.addEventListener('mouseup', function () {
                 isDragging = false;
             });
         }
 
-        let isSecretBackground = false;
-
-        window.onload = function() {
+        window.onload = function () {
             const updateLog = document.getElementById('updateLog');
             makeDraggable(updateLog);
-            document.getElementById('secretButton').addEventListener('click', function() {
-                isSecretBackground = !isSecretBackground;
-                document.body.style.backgroundImage = isSecretBackground 
-                    ? "url('https://us.rule34.xxx//samples/1289/sample_df754580eb82d403f73a2e82f3b47c11.jpg?11295240')" 
-                    : "url('https://tr.rbxcdn.com/7762f33ee079e5f17cc456e40def9b1c/768/432/Image/Webp')";
-            });
         };
-
-        let total = 0;
-        let items = [];
-
-        function addItem(name, value) {
-            items.push({ name, value });
-            updateTotal();
-            displayItems();
-        }
-
-        function removeItem(name) {
-            items = items.filter(item => item.name !== name);
-            updateTotal();
-            displayItems();
-        }
-
-        function updateTotal() {
-            total = items.reduce((sum, item) => sum + item.value, 0);
-            document.getElementById('total').innerText = 'Total: ' + total + ' Star Signs';
-        }
-
-        function displayItems() {
-            const itemList = document.getElementById('itemList');
-            itemList.innerHTML = ''; // Clear the list
-            items.forEach(item => {
-                const li = document.createElement('li');
-                li.innerText = item.name + ' (' + item.value + ' Star Signs)';
-                const removeButton = document.createElement('button');
-                removeButton.innerText = 'Remove';
-                removeButton.onclick = () => removeItem(item.name);
-                li.appendChild(removeButton);
-                itemList.appendChild(li);
-            });
-        }
     </script>
 </head>
 <body>
-
     <h1>Welcome to Fishy's Knowledge Bank!</h1>
 
     <div class="section" id="about">
@@ -205,162 +153,19 @@
         <p>I am Fishy, a casual Bee Swarm Simulator player, and I decided to keep records of some trading values that I have encountered! <em><strong>Last Updated: 12/22/24</strong></em></p>
     </div>
 
-    <div class="section">
-        <p>Use <strong>Control+F</strong> to find specific items quickly! For example, typing "Bee Bear Cub" will take you right to the details you need!</p>
-    </div>
-
-    <div class="section">
-        <p><strong>WARNING:</strong> All trading values are subject to change, especially around major in-game events. There may be inaccuracies in this list, so use it as a general guide while trading. Remember to factor in demand; some items may be harder to trade!</p>
-    </div>
-
-    <div class="button-container">
-        <button onclick="toggleSection('cubSkins')">Cub Skins</button>
-        <button onclick="toggleSection('hiveSkins')">Hive Skins</button>
-        <button onclick="toggleSection('stickers')">Stickers</button>
-        <button onclick="toggleSection('newSection')">Vouchers</button>
-        <button onclick="toggleSection('beequips')">Beequips/Services</button>
-        <button onclick="toggleSection('guide')">Guides</button>
-    </div>
-
     <div class="update-log-button">
         <button onclick="toggleUpdateLog()">Update Log</button>
     </div>
 
-    <div class="section hidden" id="cubSkins">
-        <h2>Cub Skins</h2>
-        <p>Here Are Some Cub Buddy Skin Values in Bee Swarm Simulator:</p>
-        <ul>
-<li>Bee Bear Cub: <strong>120 Star Signs</strong> (Stable)</li>
-<li>Snow Cub: <strong>65-68 Star Signs</strong> (Stable)</li>
-<li>Peppermint Robo Cub: <strong>50 Star Signs</strong> (Doing Well)</li>
-<li>Brown Bear Cub: <strong>31-33 Star Signs</strong> (Scarce)</li>
-<li>Noob Cub: <strong>27-30 Star Signs</strong> (Stable)</li>
-<li>Stick Cub: <strong>8 Star Signs</strong> (Falling)</li>
-<li>Gingerbread Bear Cub: <strong>15-16 Star Signs</strong> (Stable)</li>
-<li>Doodle Cub: <strong>8-9 Star Signs</strong> (Underpaid For)</li>
-<li>Star Cub: <strong>7-8 Star Signs</strong> (Stable)</li>
-<li>Robo Cub: <strong>5.5 Star Signs</strong> (Stable)</li>
-
-
-        </ul>
-    </div>
-
-    <div class="section hidden" id="hiveSkins">
-        <h2>Hive Skins</h2>
-        <p>Here Are Some Values of Hive Skins in Bee Swarm Simulator:</p>
-        <ul>
-            <li>Wavy Purple: <strong>8.5-10 Star Signs</strong></li>
-            <li>Wavy Doodle: <strong>3.5-4 Star Signs</strong></li>
-            <li>Wavy Cyan: <strong>1.5-2 Star Signs</strong></li>
-            <li>Wavy Yellow: <strong>1 Star Sign</strong></li>
-            <li>Basic Hive Skins: <strong>0.05-0.07 Star Signs</strong>
-        </ul>
-    </div>
-
-    <div class="section hidden" id="stickers">
-        <h2>Stickers</h2>
-        <p>Here Are Values for Trading Stickers:</p>
-        <ul>
-            <li>BBM From Below: <strong>22-25+ Star Signs</strong></li>
-            <li>Nessie: <strong>6-8 Star Signs</strong></li>
-            <li>Ionic Column Top: <strong>5-6 Star Sign</strong></li>
-            <li>Ionic Column Base: <strong>5-6 Star Sign</strong></li>
-            <li>Round Basic Bee: <strong>5-6 Star Sign</strong></li>
-            <li>Royal Symbol: <strong>2-3 Star Sign</strong></li>
-            <li>Party Robo Bear: <strong>1-2 Star Sign</strong></li>
-            <li>Glowing Smile: <strong>1.5-2 Star Signs</strong></li>
-            <li>Eviction: <strong>1-1.5 Star Signs</strong></li>
-            <li>Flying Festive Bee: <strong>1.5-1.75 Star Sign</strong></li>
-            <li>Glowering Gummy Bear: <strong>1-2 Star Sign</strong></li>
-            <li>Ionic Column Middle: <strong>1-1.5 Star Sign</strong></li>
-            <li>Cyan Hilted Sword: <strong>1 Star Sign</strong></li>
-            <li>Prismatic Mushroom: <strong>1- Star Sign</strong></li>
-            <li>Black Truffle Mushroom: <strong>1- Star Sign</strong></li>
-            <li>Pearl Girl: <strong>1- Star Sign</strong></li>
-            <li>Prism Painting: <strong>1- Star Sign</strong></li>
-            <li>Abstract Color Painting: <strong>1- Star Sign</strong></li>
-            <li>Sideways Spirit Bear: <strong>1- Star Sign</strong></li>
-            <li>Royal Bear: <strong>1- Star Sign</strong></li>
-            <li>Stick Nymph: <strong>1- Star Sign</strong></li>
-            <li>Bear Bee Offer: <strong>1+ Star Sign</strong></li>
-            <li>Pine Field Stamp: <strong>0.85- Star Sign</strong></li>
-            <li>Pepper Field Stamp: <strong>0.85- Star Sign</strong></li>
-            <li>Auyrn: <strong>0.7-0.8 Star Sign</strong></li>
-            <li>Hourglass: <strong>0.7-0.8 Star Signs</strong></li>
-            <li>Tabby From Behind: <strong>0.7 Star Sign</strong></li>
-            <li>Mythic M: <strong>0.5+ Star Sign</strong></li>
-            <li>Tabby Scratch: <strong>0.5 Star Sign</strong></li>
-            <li>Other Field Stamps (Excluding Pine or Pepper): <strong>0.5 Star Sign</strong></li>
-            <li>Gummyballer: <strong>0.5 Star Signs</strong></li>
-            <li>Robot Head: <strong>0.5 Star Signs</strong></li>
-            <li>Dark Scythe: <strong>0.25 Star Signs</strong></li>
-            <li>Tide Popper: <strong>0.15 Star Signs</strong></li>
-            <li>Other Tool Stickers: <strong>0.1 Star Sign</strong></li>
-            <li>All Leaves: <strong>0.01+ Star Sign</strong></li>
-        </ul>
-    </div>
-
-    <div class="section hidden" id="newSection">
-        <h2>New Section</h2>
-        <p>This section can be used to add any additional content you wish to include. Feel free to customize it as needed!</p>
-        <ul>
-            <li>Bee Bear Voucher: <strong>2+ Star Signs</strong></li>
-            <li>2x Bee Gather Voucher: <strong>1.25-1.5 Star Signs</strong></li>
-            <li>2x Convert Speed Voucher: <strong>0.75 Star Signs</strong></li>
-            <li>Cub Buddy Voucher: <strong>0.75 Star Signs</strong> (lower right now due to beesmass)</li>
-        </ul>
-    </div>
-
-    <div class="section hidden" id="beequips">
-        <h2>Beequips/Services</h2>
-        <p>Here Are Some Values for Trading Beequips and Beequip Services!:</p>
-        <ul>
-            <li>Debug Wax: <strong>28.5-49 Star Signs (The higher end prices are usually reserved for trusted wax/turp traders)</strong></li>
-            <li>Turpentine Service: <strong>1 Star Sign</strong></li>
-            <!-- Add more items as needed -->
-        </ul>
-    </div>
-
-    <div class="section hidden" id="guide">
-        <h2>Guides</h2>
-        <p>This section provides guides on gameplay including hive tutorials and helpful information.:</p>
-        <ul>
-            <li><strong>Blue Hive Guide:</strong> As a beginner blue hive just starting off, you may struggle filling your balloons and your bag as your bees aren't going to be fully gifted yet. Good ratio of buoyant bees to tadpole bees early on is 16:11. As you gift more bees you may start to overfill your bag and need to replace some tadpole bees in return for buoyant bees. You may not have windy bee which could be used in blue hives although it is very helpful if you do not have it, it is not the end of the world. Digital bee is a good bee to use ONLY IF you have a decent amount of blue drives! <strong>Blue hives are very experimental and do not have a one hive fits all. Most importantly you have to experiment and see, am I underfilling? If so add tadpoles. Am I overfilling? If so you can add cobalt bee or remove tadpole bees.</strong></li>
-            <li><strong>Early Blue Hive Composition:</strong><br>
-                <strong>16x Buoyant Bees</strong> (Balloons make majority of your honey)<br>
-                <strong>11x Tadpole Bees</strong> (Bubbles are meta and also needed for popstar)<br>
-                <strong>4x Gifted Music Bees</strong> (For focus and melody)<br>
-                <strong>1x Gifted Ninja Bee</strong> (Haste and Blue Bee Type)<br>
-                <strong>1x Gifted Diamond Bee</strong> (Has a very good passive for conversion)<br>
-                <strong>1x Gifted Tabby Bee</strong><br>
-                <strong>1x Gifted Festive Bee</strong><br>
-                <strong>1x Gifted Windy Bee</strong> (If you don't have can replace with a buoyant/tad)<br>
-                <strong>1x Gifted Gummy Bee</strong><br>
-                <strong>1x Gifted Bear Bee</strong> (If you don't have can replace with buoyant/tad)<br>
-                <strong>1x Gifted Fuzzy</strong> (Make flower give more pollen, field pollination)<br>
-                <strong>1x Gifted Basic Bee</strong> (Free Pollen 20% extra for free)<br>
-                <strong>1x Gifted Looker</strong> (Focus)<br>
-                <strong>1x Gifted Bubble</strong> (Bubble lifespan, blue bee type)<br>
-                <strong>1x Gifted Frosty</strong> (Good for early game blue when underfilling by using bomb pollen, when higher level remove for a tadpole/buoyant)<br>
-                <strong>1x Gifted Bomber</strong> (Good for early game blue when underfilling by using bomb pollen, when higher level remove for a tadpole/buoyant)<br>
-                <strong>1x Gifted Shocked</strong> (Token Links, Haste)<br>
-                <strong>1x Gifted Bucko</strong><br>
-                <strong>1x Gifted Stubborn</strong><br>
-                <strong>1x Gifted Bumble</strong> (10% Capacity)<br>
-                <strong>1x Gifted Commander</strong><br>
-                <strong>1x Gifted Cool</strong> (Free Blue Pollen)
-            </li>
-        </ul>
-    </div>
-
-    <div class="section hidden" id="updateLog">
+    <div id="updateLog">
         <h2>Update Log</h2>
         <p>Here you can list the updates made to the page:</p>
         <ul>
-            <li><strong>12/22/24:</strong>Changed Values on Cub Skins<strong></strong></li>
-            <!-- Add more update entries as needed -->
+            <li><strong>12/22/24:</strong> Changed Values on Cub Skins</li>
         </ul>
     </div>
+</body>
+</html>
 
     <button id="secretButton" style="position: fixed; top: 10px; right: 10px; width: 70px; height: 30px; opacity: .07; cursor: pointer;">Secret</button>
 
